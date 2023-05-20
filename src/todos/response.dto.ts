@@ -1,7 +1,7 @@
 import { Exclude, Expose } from 'class-transformer';
 
 export class UserResponseDto {
-  @Exclude({ toPlainOnly: true })
+  // @Exclude({ toPlainOnly: true })
   _id: any;
 
   @Expose({ name: 'userId' })

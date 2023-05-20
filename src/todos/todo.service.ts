@@ -15,13 +15,14 @@ export class TodoService {
     @Inject('LOGGER') private readonly logger: LoggerService,
   ) {}
 
-  async createUser(body: UserCreateDto): Promise<User> {
-    const hashPassword = await bcrypt.hash(body.password, 10);
+  async createUser(username: string, password: string): Promise<User> {
+    const hashPassword = await bcrypt.hash(password, 10);
     console.log(hashPassword);
-    return await this.User.create({
-      username: body.username,
-      pasword: hashPassword,
+    const newUser = await this.User.create({
+      username: username,
+      password: hashPassword,
     });
+    return newUser.toJSON();
   }
 
   async addTodo(userId: string, todoCreateDto: TodoCreateDto): Promise<User> {
@@ -43,5 +44,9 @@ export class TodoService {
         username: 1,
       },
     ).lean();
+  }
+
+  async getUser(userId: string) {
+    return await this.User.findById({ _id: userId });
   }
 }

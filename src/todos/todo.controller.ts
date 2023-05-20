@@ -9,6 +9,7 @@ import {
   Req,
   ClassSerializerInterceptor,
   UseGuards,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { TodoService } from './todo.service';
 import { TodoCreateDto } from './dtos/todo-create.dto';
@@ -19,6 +20,7 @@ import { UserResponseDto } from './response.dto';
 import { LoggerInterceptor } from 'src/common/interceptors/logger.interceptor';
 import { TransformInterceptor } from 'src/common/transform.interceptor';
 import { TestGuards } from 'src/common/guards/TestGuards.guards';
+import * as bcrypt from 'bcrypt';
 
 @Controller()
 export class TodoController {
@@ -39,7 +41,7 @@ export class TodoController {
 
   @Post('/register')
   async addUser(@Body() body: UserCreateDto): Promise<User> {
-    return await this.todoService.createUser(body);
+    return await this.todoService.createUser(body.username, body.password);
   }
 
   @Post('/todos/:userId')
@@ -54,5 +56,15 @@ export class TodoController {
   @Get('/todos/:userId')
   async getUserTodos(@Param('userId') userId: string) {
     return await this.todoService.getUserTodos(userId);
+  }
+
+  @Post()
+  async login(@Body() body: UserCreateDto, @Param('userId') userId: string) {
+    const user = await this.todoService.getUser(userId);
+    if (!user) {
+      throw new UnauthorizedException('usernaem or password is incorrect');
+    } else {
+      const comparePass = await bcrypt.compare(body.password, user.password);
+    }
   }
 }
